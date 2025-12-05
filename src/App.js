@@ -53,7 +53,7 @@ const PokemonBirthdayChallenge = () => {
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.play().catch(e => console.log('Audio autoplay prevented'));
+      audioRef.current.play().catch(e => console.log('Audio autoplay prevented', e));
     }
   }, []);
 
@@ -296,7 +296,7 @@ const PokemonBirthdayChallenge = () => {
   return (
     <>
       <audio ref={audioRef} loop>
-        <source src="https://ia600504.us.archive.org/8/items/pokemon-original-theme/Pokemon%20Original%20Theme.mp3" type="audio/mpeg" />
+        <source src="/background.mp3" type="audio/mpeg" />
       </audio>
       
       {stage === 'welcome' && <WelcomePage />}
