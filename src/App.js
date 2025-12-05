@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Shield, AlertTriangle, CheckCircle, XCircle, Volume2, VolumeX } from 'lucide-react';
 
@@ -9,31 +10,231 @@ const PokemonBirthdayChallenge = () => {
   const [riddles, setRiddles] = useState([]);
   const [score, setScore] = useState(0);
   const [isMuted, setIsMuted] = useState(true); // start muted for autoplay
+  const [showHint, setShowHint] = useState(false);
+  const [hintCount, setHintCount] = useState(0);
   const audioRef = useRef(null);
 
   const pokemonDatabase = [
-    { name: 'pikachu', riddles: ['SPECIES: Electric rodent', 'TRAIT: Vocal identification protocol', 'STATUS: Global recognition'], difficulty: 1 },
-    { name: 'charmander', riddles: ['SIGNATURE: Flame appendage detected', 'EVOLUTION: Draconic potential', 'ELEMENT: Pyrokinetic'], difficulty: 1 },
-    { name: 'squirtle', riddles: ['EQUIPMENT: Tactical eyewear unit', 'ABILITY: Hydro warfare', 'DEFENSE: Dorsal armor plating'], difficulty: 1 },
-    { name: 'bulbasaur', riddles: ['ANOMALY: Botanical symbiosis', 'DESIGNATION: Subject 001', 'CLASSIFICATION: Flora/Toxin hybrid'], difficulty: 1 },
-    { name: 'jigglypuff', riddles: ['WEAPON: Soporific frequency', 'REACTION: Hostile when ineffective', 'TOOL: Marking instrument'], difficulty: 1 },
-    { name: 'meowth', riddles: ['OBSESSION: Currency acquisition', 'AFFILIATION: Criminal syndicate', 'CATCHPHRASE: Affirmative declaration'], difficulty: 2 },
-    { name: 'psyduck', riddles: ['CONDITION: Cranial pressure unlocks power', 'STATE: Permanent disorientation', 'PARADOX: Aquatic psychic confusion'], difficulty: 2 },
-    { name: 'snorlax', riddles: ['ACTIVATION: Musical instrument required', 'THREAT: Mobile obstruction', 'FILE NUMBER: 143'], difficulty: 2 },
-    { name: 'eevee', riddles: ['CAPABILITY: Polymorphic genetics', 'TRIGGER: Elemental catalysts', 'POTENTIAL: Eight documented variants'], difficulty: 2 },
-    { name: 'ditto', riddles: ['IDENTITY: Variable', 'TECHNIQUE: Morphological duplication', 'APPEARANCE: Amorphous pink mass'], difficulty: 2 },
-    { name: 'magikarp', riddles: ['REPUTATION: Underestimated threat', 'LIMITATION: Ineffective kinetic output', 'TRANSFORMATION: Serpentine ascension'], difficulty: 2 },
-    { name: 'gengar', riddles: ['LOCATION: Umbral attachment', 'TYPE: Spectral/Toxic combination', 'EXPRESSION: Malevolent amusement'], difficulty: 2 },
-    { name: 'alakazam', riddles: ['INTELLIGENCE: 5000+ cognitive units', 'EQUIPMENT: Dual reality benders', 'STATUS: Final cerebral evolution'], difficulty: 3 },
-    { name: 'dragonite', riddles: ['VELOCITY: Circumnavigation 16hr protocol', 'DEVELOPMENT: Minimal to apex predator', 'HANDLER: Elite Four operative'], difficulty: 3 },
-    { name: 'mewtwo', riddles: ['ORIGIN: Laboratory genesis', 'POWER LEVEL: Unmatched specimen', 'METHOD: Synthesized, never captured'], difficulty: 3 },
-    { name: 'gyarados', riddles: ['CATALYST: Fury-induced metamorphosis', 'LOCATION: Rage reservoir', 'IDENTIFIER: Twenty crimson plates'], difficulty: 3 },
-    { name: 'articuno', riddles: ['DOMAIN: Arctic atmospheric control', 'CLASSIFICATION: Legendary avian - ice', 'TRINITY: Sacred triumvirate member'], difficulty: 3 },
-    { name: 'zapdos', riddles: ['PHENOMENON: Electrical storm manifestation', 'TERRITORY: Energy facility', 'TYPE: Legendary voltage'], difficulty: 3 },
-    { name: 'moltres', riddles: ['SIGNATURE: Perpetual combustion', 'COORDINATES: Championship route', 'SPECIES: Mythical inferno bird'], difficulty: 3 },
-    { name: 'lapras', riddles: ['COMMUNICATION: Oceanic vocalizations', 'SCHEDULE: Weekly Friday appearance', 'COMBINATION: Carapace and melody'], difficulty: 3 },
-    { name: 'aerodactyl', riddles: ['RECOVERY: Fossilized amber extraction', 'ERA: Prehistoric terror unit', 'HYBRID: Mineral and aerial'], difficulty: 3 },
-    { name: 'machamp', riddles: ['AUGMENTATION: Quadruple limbs', 'OUTPUT: 1000 strikes per second', 'FORM: Maximum combat evolution'], difficulty: 3 },
+    {
+      name: 'pikachu',
+      riddles: [
+        'SPECIES: Electric rodent',
+        'TRAIT: Vocal identification protocol',
+        'STATUS: Global recognition'
+      ],
+      hint: 'The mascot of the entire Pokémon series.',
+      difficulty: 1
+    },
+    {
+      name: 'charmander',
+      riddles: [
+        'SIGNATURE: Flame appendage detected',
+        'EVOLUTION: Draconic potential',
+        'ELEMENT: Pyrokinetic'
+      ],
+      hint: 'A small orange lizard with a burning tail.',
+      difficulty: 1
+    },
+    {
+      name: 'squirtle',
+      riddles: [
+        'EQUIPMENT: Tactical eyewear unit',
+        'ABILITY: Hydro warfare',
+        'DEFENSE: Dorsal armor plating'
+      ],
+      hint: 'A tiny blue turtle that shoots water.',
+      difficulty: 1
+    },
+    {
+      name: 'bulbasaur',
+      riddles: [
+        'ANOMALY: Botanical symbiosis',
+        'DESIGNATION: Subject 001',
+        'CLASSIFICATION: Flora/Toxin hybrid'
+      ],
+      hint: 'A dinosaur-like creature with a plant on its back.',
+      difficulty: 1
+    },
+    {
+      name: 'jigglypuff',
+      riddles: [
+        'WEAPON: Soporific frequency',
+        'REACTION: Hostile when ineffective',
+        'TOOL: Marking instrument'
+      ],
+      hint: 'A round pink singer that puts people to sleep.',
+      difficulty: 1
+    },
+    {
+      name: 'meowth',
+      riddles: [
+        'OBSESSION: Currency acquisition',
+        'AFFILIATION: Criminal syndicate',
+        'CATCHPHRASE: Affirmative declaration'
+      ],
+      hint: 'A coin-loving cat from Team Rocket.',
+      difficulty: 2
+    },
+    {
+      name: 'psyduck',
+      riddles: [
+        'CONDITION: Cranial pressure unlocks power',
+        'STATE: Permanent disorientation',
+        'PARADOX: Aquatic psychic confusion'
+      ],
+      hint: 'A yellow duck constantly holding its head in confusion.',
+      difficulty: 2
+    },
+    {
+      name: 'snorlax',
+      riddles: [
+        'ACTIVATION: Musical instrument required',
+        'THREAT: Mobile obstruction',
+        'FILE NUMBER: 143'
+      ],
+      hint: 'A giant sleeper that blocks roads.',
+      difficulty: 2
+    },
+    {
+      name: 'eevee',
+      riddles: [
+        'CAPABILITY: Polymorphic genetics',
+        'TRIGGER: Elemental catalysts',
+        'POTENTIAL: Eight documented variants'
+      ],
+      hint: 'A small fox Pokémon with many possible evolutions.',
+      difficulty: 2
+    },
+    {
+      name: 'ditto',
+      riddles: [
+        'IDENTITY: Variable',
+        'TECHNIQUE: Morphological duplication',
+        'APPEARANCE: Amorphous pink mass'
+      ],
+      hint: 'A pink blob that copies any Pokémon it sees.',
+      difficulty: 2
+    },
+    {
+      name: 'magikarp',
+      riddles: [
+        'REPUTATION: Underestimated threat',
+        'LIMITATION: Ineffective kinetic output',
+        'TRANSFORMATION: Serpentine ascension'
+      ],
+      hint: 'A useless flopping fish that becomes powerful when it evolves.',
+      difficulty: 2
+    },
+    {
+      name: 'gengar',
+      riddles: [
+        'LOCATION: Umbral attachment',
+        'TYPE: Spectral/Toxic combination',
+        'EXPRESSION: Malevolent amusement'
+      ],
+      hint: 'A mischievous ghost Pokémon with a creepy smile.',
+      difficulty: 2
+    },
+    {
+      name: 'alakazam',
+      riddles: [
+        'INTELLIGENCE: 5000+ cognitive units',
+        'EQUIPMENT: Dual reality benders',
+        'STATUS: Final cerebral evolution'
+      ],
+      hint: 'A psychic Pokémon that always holds spoons.',
+      difficulty: 3
+    },
+    {
+      name: 'dragonite',
+      riddles: [
+        'VELOCITY: Circumnavigation 16hr protocol',
+        'DEVELOPMENT: Minimal to apex predator',
+        'HANDLER: Elite Four operative'
+      ],
+      hint: 'A large friendly orange dragon.',
+      difficulty: 3
+    },
+    {
+      name: 'mewtwo',
+      riddles: [
+        'ORIGIN: Laboratory genesis',
+        'POWER LEVEL: Unmatched specimen',
+        'METHOD: Synthesized, never captured'
+      ],
+      hint: 'A powerful clone created from Mew.',
+      difficulty: 3
+    },
+    {
+      name: 'gyarados',
+      riddles: [
+        'CATALYST: Fury-induced metamorphosis',
+        'LOCATION: Rage reservoir',
+        'IDENTIFIER: Twenty crimson plates'
+      ],
+      hint: 'A huge sea serpent formed from a weak little fish.',
+      difficulty: 3
+    },
+    {
+      name: 'articuno',
+      riddles: [
+        'DOMAIN: Arctic atmospheric control',
+        'CLASSIFICATION: Legendary avian - ice',
+        'TRINITY: Sacred triumvirate member'
+      ],
+      hint: 'A legendary blue bird that controls ice.',
+      difficulty: 3
+    },
+    {
+      name: 'zapdos',
+      riddles: [
+        'PHENOMENON: Electrical storm manifestation',
+        'TERRITORY: Energy facility',
+        'TYPE: Legendary voltage'
+      ],
+      hint: 'A legendary yellow bird surrounded by lightning.',
+      difficulty: 3
+    },
+    {
+      name: 'moltres',
+      riddles: [
+        'SIGNATURE: Perpetual combustion',
+        'COORDINATES: Championship route',
+        'SPECIES: Mythical inferno bird'
+      ],
+      hint: 'A fiery legendary bird with blazing wings.',
+      difficulty: 3
+    },
+    {
+      name: 'lapras',
+      riddles: [
+        'COMMUNICATION: Oceanic vocalizations',
+        'SCHEDULE: Weekly Friday appearance',
+        'COMBINATION: Carapace and melody'
+      ],
+      hint: 'A gentle sea creature that ferries people across water.',
+      difficulty: 3
+    },
+    {
+      name: 'aerodactyl',
+      riddles: [
+        'RECOVERY: Fossilized amber extraction',
+        'ERA: Prehistoric terror unit',
+        'HYBRID: Mineral and aerial'
+      ],
+      hint: 'A resurrected prehistoric flying reptile.',
+      difficulty: 3
+    },
+    {
+      name: 'machamp',
+      riddles: [
+        'AUGMENTATION: Quadruple limbs',
+        'OUTPUT: 1000 strikes per second',
+        'FORM: Maximum combat evolution'
+      ],
+      hint: 'A four-armed martial arts Pokémon.',
+      difficulty: 3
+    },
   ];
 
   useEffect(() => {
@@ -88,6 +289,13 @@ const PokemonBirthdayChallenge = () => {
     }
   };
 
+  const handleHint = () => {
+    if (!showHint) {
+      setShowHint(true);
+      setHintCount(hintCount + 1);
+    }
+  };
+
   const handleGuess = () => {
     const correct = riddles[currentRiddle].name.toLowerCase();
     const guess = userGuess.toLowerCase().trim();
@@ -100,6 +308,7 @@ const PokemonBirthdayChallenge = () => {
           setCurrentRiddle(currentRiddle + 1);
           setUserGuess('');
           setMessage('');
+          setShowHint(false);
         } else {
           setStage('finale');
         }
@@ -275,6 +484,21 @@ const PokemonBirthdayChallenge = () => {
             </div>
           </div>
 
+          {/* Hint system - just above input */}
+          <div className="mb-4">
+            <button
+              onClick={handleHint}
+              className="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded font-mono border border-purple-400 transition"
+            >
+              [ REQUEST ADDITIONAL INTEL ]
+            </button>
+            {showHint && (
+              <div className="text-yellow-300 font-mono text-sm mt-2 p-3 border border-yellow-500 rounded bg-black/40">
+                <span className="text-yellow-500">▸ HINT:</span> {currentPokemon.hint}
+              </div>
+            )}
+          </div>
+
           <div className="space-y-4">
             <div className="relative">
               <input
@@ -391,6 +615,9 @@ const PokemonBirthdayChallenge = () => {
           </p>
           <p className="text-yellow-400 text-2xl font-bold">
             FINAL SCORE: {score}/5
+          </p>
+          <p className="text-purple-300 text-sm mt-3">
+            HINTS CONSULTED: {hintCount}
           </p>
         </div>
 
