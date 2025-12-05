@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Volume2, VolumeX } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 const PokemonBirthdayChallenge = () => {
   const [stage, setStage] = useState('welcome');
@@ -8,19 +8,7 @@ const PokemonBirthdayChallenge = () => {
   const [message, setMessage] = useState('');
   const [riddles, setRiddles] = useState([]);
   const [score, setScore] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);   // <-- ADDED
   const audioRef = useRef(null);
-
-  const toggleMute = () => {                      // <-- ADDED
-    if (!audioRef.current) return;
-    if (isMuted) {
-      audioRef.current.muted = false;
-      setIsMuted(false);
-    } else {
-      audioRef.current.muted = true;
-      setIsMuted(true);
-    }
-  };
 
   const pokemonDatabase = [
     { name: 'pikachu', riddles: ['SPECIES: Electric rodent', 'TRAIT: Vocal identification protocol', 'STATUS: Global recognition'], difficulty: 1 },
@@ -106,10 +94,9 @@ const PokemonBirthdayChallenge = () => {
       </div>
 
       <div className="absolute inset-0 pointer-events-none" 
-        style={{
-          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)'
-        }} 
-      />
+           style={{
+             backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)'
+           }} />
       
       <div className="bg-gray-900/95 border-2 border-red-500 backdrop-blur-sm rounded-lg p-12 max-w-2xl text-center shadow-2xl relative z-10">
         <div className="mb-6">
@@ -166,9 +153,9 @@ const PokemonBirthdayChallenge = () => {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-4 relative">
         <div className="absolute inset-0 pointer-events-none" 
-          style={{
-            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)'
-          }} />
+             style={{
+               backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)'
+             }} />
 
         <div className="bg-gray-900/95 border-2 border-green-500 backdrop-blur-sm rounded-lg p-8 max-w-xl w-full shadow-2xl relative">
           <div className="border-b-2 border-green-500 pb-4 mb-6">
@@ -237,12 +224,11 @@ const PokemonBirthdayChallenge = () => {
   };
 
   const FinalePage = () => (
-    <div className="min-h-screen bg:black flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events:none"
-        style={{
-          backgroundImage:'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)'
-        }}
-      />
+    <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" 
+           style={{
+             backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)'
+           }} />
 
       <div className="absolute inset-0 opacity-30">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" 
@@ -309,19 +295,10 @@ const PokemonBirthdayChallenge = () => {
 
   return (
     <>
-      {/* MUSIC PLAYER */}
-      <audio ref={audioRef} loop>
+     <audio ref={audioRef} autoPlay loop muted playsInline>
         <source src="/background.mp3" type="audio/mpeg" />
       </audio>
-
-      {/* 🔈 MUTE BUTTON */}
-      <button
-        onClick={toggleMute}
-        className="fixed top-4 right-4 z-50 bg-gray-900 border border-green-500 text-green-500 p-3 rounded-full hover:bg-green-700 hover:text-black transition"
-      >
-        {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-      </button>
-
+      
       {stage === 'welcome' && <WelcomePage />}
       {stage === 'game' && <GamePage />}
       {stage === 'finale' && <FinalePage />}
