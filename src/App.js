@@ -8,7 +8,7 @@ const PokemonBirthdayChallenge = () => {
   const [message, setMessage] = useState('');
   const [riddles, setRiddles] = useState([]);
   const [score, setScore] = useState(0);
-  const [isMuted, setIsMuted] = useState(true); // start muted so autoplay is allowed
+  const [isMuted, setIsMuted] = useState(true); // start muted for autoplay
   const audioRef = useRef(null);
 
   const pokemonDatabase = [
@@ -52,31 +52,23 @@ const PokemonBirthdayChallenge = () => {
     setRiddles(selected);
   }, []);
 
-  // Try to start playback (muted) on load – allowed by browsers
+  // Try autoplay muted
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.play().catch(() => {
-        // Autoplay might still be blocked; we'll definitely start on user click in fadeInAudio
-      });
+      audioRef.current.play().catch(() => {});
     }
   }, []);
 
-  // Smooth fade-in when mission starts
   const fadeInAudio = () => {
     const audio = audioRef.current;
     if (!audio) return;
-
-    // Make sure it is playing
     audio.play().catch(() => {});
-
     audio.muted = false;
     audio.volume = 0;
     setIsMuted(false);
-
     let vol = 0;
-    const step = 0.05;
     const interval = setInterval(() => {
-      vol += step;
+      vol += 0.05;
       if (vol >= 1) {
         vol = 1;
         clearInterval(interval);
@@ -85,15 +77,12 @@ const PokemonBirthdayChallenge = () => {
     }, 100);
   };
 
-  // Mute/unmute button
   const toggleMute = () => {
     const audio = audioRef.current;
     if (!audio) return;
-
     const newMuted = !audio.muted;
     audio.muted = newMuted;
     setIsMuted(newMuted);
-
     if (!newMuted && audio.paused) {
       audio.play().catch(() => {});
     }
@@ -121,41 +110,58 @@ const PokemonBirthdayChallenge = () => {
   };
 
   const WelcomePage = () => (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-10">
-        <div className="grid grid-cols-8 gap-4 p-4">
-          {[...Array(40)].map((_, i) => (
-            <img 
-              key={i}
-              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${(i % 151) + 1}.png`}
-              alt=""
-              className="w-16 h-16 grayscale"
-            />
-          ))}
-        </div>
-      </div>
-
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{
+        background:
+          "radial-gradient(circle at top, rgba(255,0,128,0.25), transparent 60%), radial-gradient(circle at bottom, rgba(140,0,255,0.45), #050014 70%)",
+        backgroundImage:
+          "linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.8))",
+      }}
+    >
+      {/* Neon city skyline silhouette */}
       <div
-        className="absolute inset-0 pointer-events-none" 
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-48 opacity-70"
         style={{
           backgroundImage:
-            'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)'
+            "linear-gradient(to top, #050010 0%, #050010 40%, transparent 100%), repeating-linear-gradient(to right, rgba(255,105,180,0.7), rgba(255,105,180,0.7) 3px, transparent 3px, transparent 8px)",
+          mixBlendMode: "screen",
         }}
       />
-      
+      {/* Neon fog / light glow */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle at 20% 20%, rgba(255,0,200,0.22), transparent 55%), radial-gradient(circle at 80% 80%, rgba(0,200,255,0.2), transparent 55%)",
+        }}
+      />
+      {/* Light neon rain */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(to bottom, rgba(255,255,255,0.12) 2px, transparent 2px)",
+          backgroundSize: "2px 18px",
+          opacity: 0.12,
+          mixBlendMode: "screen",
+          animation: "neonRain 12s linear infinite",
+        }}
+      />
+
       <div className="bg-gray-900/95 border-2 border-red-500 backdrop-blur-sm rounded-lg p-12 max-w-2xl text-center shadow-2xl relative z-10">
         <div className="mb-6">
           <Shield className="w-20 h-20 mx-auto text-red-500 animate-pulse" />
         </div>
-        
+
         <div className="text-red-500 font-mono text-sm mb-4">
           [CLASSIFIED - LEVEL 5 CLEARANCE]
         </div>
-        
+
         <h1 className="text-5xl font-bold text-red-500 mb-6 font-mono tracking-wider">
           MISSION BRIEFING
         </h1>
-        
+
         <div className="text-left text-green-400 font-mono space-y-3 mb-8 text-sm">
           <p>AGENT: EMILY</p>
           <p>CLEARANCE: AUTHORIZED</p>
@@ -169,11 +175,11 @@ const PokemonBirthdayChallenge = () => {
           This mission, should you choose to accept it, involves the identification
           of five mysterious creatures using classified intelligence reports.
         </p>
-        
+
         <button
           onClick={() => {
             setStage('game');
-            fadeInAudio();   // 🔊 start music with fade-in when mission accepted
+            fadeInAudio();
           }}
           className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded font-mono text-lg font-bold border-2 border-red-400 hover:scale-105 transform transition"
         >
@@ -186,13 +192,13 @@ const PokemonBirthdayChallenge = () => {
   const GamePage = () => {
     const currentPokemon = riddles[currentRiddle];
     const inputRef = useRef(null);
-    
+
     useEffect(() => {
       if (inputRef.current) {
         inputRef.current.focus();
       }
     }, [currentRiddle]);
-    
+
     if (!currentPokemon) return null;
 
     const threatLevel =
@@ -204,12 +210,37 @@ const PokemonBirthdayChallenge = () => {
       currentPokemon.difficulty === 2 ? 'text-yellow-500' : 'text-red-500';
 
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-4 relative">
+      <div
+        className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+        style={{
+          backgroundColor: "#050014",
+          backgroundImage:
+            "radial-gradient(circle at top, rgba(255,0,150,0.25), transparent 55%), radial-gradient(circle at bottom, rgba(90,0,255,0.5), #02000a 70%)",
+        }}
+      >
+        {/* Animated neon grid */}
         <div
-          className="absolute inset-0 pointer-events-none" 
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: `
+              linear-gradient(0deg, rgba(255,0,200,0.16) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,255,200,0.16) 1px, transparent 1px)
+            `,
+            backgroundSize: "40px 40px",
+            opacity: 0.35,
+            animation: "gridShift 10s linear infinite",
+          }}
+        />
+        {/* Heavier neon rain */}
+        <div
+          className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)'
+              "linear-gradient(to bottom, rgba(255,255,255,0.14) 2px, transparent 2px)",
+            backgroundSize: "2px 16px",
+            opacity: 0.18,
+            mixBlendMode: "screen",
+            animation: "neonRain 8s linear infinite",
           }}
         />
 
@@ -256,7 +287,7 @@ const PokemonBirthdayChallenge = () => {
                 className="w-full px-4 py-3 bg-black border-2 border-green-500 text-green-500 rounded font-mono focus:outline-none focus:border-green-300 placeholder-green-700"
               />
             </div>
-            
+
             {message && (
               <div
                 className={`flex items-center justify-center gap-2 font-mono font-bold ${
@@ -290,67 +321,67 @@ const PokemonBirthdayChallenge = () => {
   };
 
   const FinalePage = () => (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{
+        background:
+          "radial-gradient(circle at top, rgba(255,0,180,0.35), transparent 60%), radial-gradient(circle at bottom, rgba(150,0,255,0.9), #060015 70%)",
+      }}
+    >
+      {/* Neon city glow layer */}
       <div
-        className="absolute inset-0 pointer-events-none" 
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle at 15% 20%, rgba(255,0,200,0.25), transparent 55%), radial-gradient(circle at 85% 80%, rgba(0,200,255,0.23), transparent 55%)",
+        }}
+      />
+      {/* Neon rain */}
+      <div
+        className="pointer-events-none absolute inset-0"
         style={{
           backgroundImage:
-            'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px)'
+            "linear-gradient(to bottom, rgba(255,255,255,0.18) 2px, transparent 2px)",
+          backgroundSize: "2px 14px",
+          opacity: 0.25,
+          mixBlendMode: "screen",
+          animation: "neonRain 7s linear infinite",
         }}
       />
 
-      <div className="absolute inset-0 opacity-30">
-        <img
-          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" 
-          className="absolute top-10 left-10 w-32 h-32"
-          alt=""
-          style={{ filter: 'hue-rotate(90deg)' }}
-        />
-        <img
-          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/6.gif" 
-          className="absolute top-10 right-10 w-32 h-32"
-          alt=""
-          style={{ filter: 'hue-rotate(90deg)' }}
-        />
-        <img
-          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/9.gif" 
-          className="absolute bottom-10 left-10 w-32 h-32"
-          alt=""
-          style={{ filter: 'hue-rotate(90deg)' }}
-        />
-        <img
-          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/1.gif" 
-          className="absolute bottom-10 right-10 w-32 h-32"
-          alt=""
-          style={{ filter: 'hue-rotate(90deg)' }}
-        />
-        <img
-          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/150.gif" 
-          className="absolute top-1/2 left-10 w-32 h-32"
-          alt=""
-          style={{ filter: 'hue-rotate(90deg)' }}
-        />
-        <img
-          src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/143.gif" 
-          className="absolute top-1/2 right-10 w-32 h-32"
-          alt=""
-          style={{ filter: 'hue-rotate(90deg)' }}
-        />
+      {/* Shinx GIFs around */}
+      <div className="absolute inset-0 opacity-45">
+        {[
+          { className: "absolute top-10 left-10" },
+          { className: "absolute top-10 right-10" },
+          { className: "absolute bottom-10 left-10" },
+          { className: "absolute bottom-10 right-10" },
+          { className: "absolute top-1/2 left-6 -translate-y-1/2" },
+          { className: "absolute top-1/2 right-6 -translate-y-1/2" },
+        ].map((pos, idx) => (
+          <img
+            key={idx}
+            src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/403.gif"
+            className={pos.className + " w-32 h-32"}
+            alt=""
+            style={{ filter: "drop-shadow(0 0 18px rgba(255,0,200,0.9))" }}
+          />
+        ))}
       </div>
 
       <div className="bg-gray-900/95 border-4 border-green-500 backdrop-blur-sm rounded-lg p-12 max-w-3xl text-center shadow-2xl relative z-10">
         <div className="mb-6">
           <CheckCircle className="w-24 h-24 mx-auto text-green-500 animate-pulse" />
         </div>
-        
+
         <div className="text-green-500 font-mono text-sm mb-4">
           [MISSION STATUS: COMPLETE]
         </div>
-        
+
         <h1 className="text-6xl font-bold text-green-500 mb-6 font-mono tracking-wider animate-pulse">
           HAPPY BIRTHDAY<br/>EMILY!!!!
         </h1>
-        
+
         <div className="bg-black border border-green-500 rounded p-6 mb-6 font-mono">
           <p className="text-green-400 text-xl mb-2">
             🎉 MISSION ACCOMPLISHED 🎉
@@ -368,13 +399,13 @@ const PokemonBirthdayChallenge = () => {
         </p>
 
         <div className="flex justify-center gap-4 mt-8">
-          {[25, 94, 133, 39, 35].map(num => (
-            <img 
-              key={num}
-              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${num}.gif`}
+          {[0, 1, 2, 3, 4].map(idx => (
+            <img
+              key={idx}
+              src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/403.gif"
               alt=""
               className="w-20 h-20"
-              style={{ filter: 'hue-rotate(90deg)' }}
+              style={{ filter: "drop-shadow(0 0 16px rgba(255,0,200,0.9))" }}
             />
           ))}
         </div>
@@ -400,7 +431,7 @@ const PokemonBirthdayChallenge = () => {
       >
         {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
       </button>
-      
+
       {stage === 'welcome' && <WelcomePage />}
       {stage === 'game' && <GamePage />}
       {stage === 'finale' && <FinalePage />}
